@@ -26,7 +26,7 @@
 
  Dependendo do sistema operacional, caso o processo pai termine, os subprocessos subordinados serão eliminados (Unix) ou não (Windows).
 
- ![Representacao de Subprocessos](https://imgur.com/a/ZsAzo5Z)
+<img src="https://imgur.com/a/ZsAzo5Z" alt="Representacao de Subprocessos">
 
  Como exemplo, um browser. Normalmente um documento Web consiste em um arquivo HTML que contém
  texto comum acompanhado de imagens, ícones, aúdios, etc. Para buscar cada elemento, o browser tem de estabelecer uma conexão TCP/IP, ler os dados que chegam e passá-los ao componente de exibição. Assim, para melhorar o desempenho, o browser (processo pai) pode criar diversos processos filhos, de modo que, enquanto o processo pai exibe o texto, à medida que os dados vão chegando, os processos filhos continuam buscando outros arquivos da página.
@@ -59,12 +59,12 @@ A maioria dos sistemas operacionais possui uma conta de acesso com todos esses p
 
 Na imagem a seguir, são mostradas algumas quotas do processo WINWORD.EXE, identificado pelo ID 7670. Possuí informações como seu nível de prioridade (Priority 8), o tamanho disponível em sua memória virtual (Virtual Size, 698.444 K) e seu espaço de endereçamento (Working Set, 106.960 K), entre outras informações. O espaço de endereçamento representa a área de memória pertencente ao processo em que as instruções e os dados do programa são armazenados para execução. Cada processo possui seu próprio espaço de endereçamento, que é protegido, pelo sistema operacional, do acesso pelos demais processos.
 
- ![Processo WINWORD](https://imgur.com/a/HXdNL1a)
+<img src="https://imgur.com/a/HXdNL1a" alt="Processo WINWORD">
 
  A troca de um processo para outro na CPU é gerenciada pelo sistema operacional e é denominada
  troca de contexto. Consiste, principalmente, em salvar o conteúdo dos registradores do processo que está deixando a CPU e carregar o conteúdo dos registradores do novo processo que será executado.
 
- ![Troca de Contextos](https://imgur.com/a/wKwOeW1)
+<img src="https://imgur.com/a/wKwOeW1" alt="Troca de Contextos">
 
  Pensando que você está executando um videogame, mas também escrevendo no Word um trabalho, teremos dois processos competindo pela utilização da CPU. Os dois processos vão sendo colocados em execução, de forma alternada. A cada troca de processo na CPU, ocorre a troca de contexto. Caso o Word seja retirado da CPU para que o jogo entre em execução, as informações referentes ao estado atual de utilização do Word precisam desocupar os registradores físicos para dar espaço ao jogo. Os dados que estão sendo retirados, para não serem perdidos, são salvos na memória principal do computador. E os dados que estão sendo carregados para processamento são lidos da memória principal e copiados nos registradores físicos da CPU.
 
