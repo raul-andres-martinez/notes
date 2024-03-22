@@ -160,3 +160,67 @@ Geralmente, uma fatia de tempo da ordem de 100ms apresenta uma boa solução de 
 
 A principal vantagem do algoritmo de escalonamento circular é não permitir que um processo monopolize o processador, sendo o tempo máximo alocado continuamente igual à fatia de tempo definida no sistema.
 
+## Escalonamento de processos em sistemas com múltiplos processadores
+
+### Cada CPU com seu próprio sistema operacional
+Agora sim, abordando múltiplos processadores, o comportamento do sistema operacional depende muito da arquitetura de hardware utilizada para construção desses sistemas.
+
+A maneira mais simples possível de organizar um sistema operacional para sistemas com múltiplos processadores é: dividir estaticamente a memória em um número de partes igual ao número de CPUs e para cada uma, definir sua própria memória privada e sua cópia privada do sistema operacional.
+
+As n CPUs operam como n computadores independentes. Uma melhoria imediata é permitir que todas as CPUs compartilhem o código do sistema operacional e façam cópias privadas apenas das estruturas de dados do SO.
+
+Essa arquitetura é melhor do que ter n computadores separados, já que ela permite que dispositivos de E/S, fontes de alimentação e sistemas de refrigeração sejam compartilhados.
+
+Tendo em vista que cada sistema operacional tem suas próprias tabelas, cada um também tem seu próprio conjunto de processos que escalona para si mesmo. Assim, não há compartilhamento de processos. Se um usuário faz login na CPU 1, todos os seus processos serão executados na CPU 1. Como consequência, pode acontecer de a CPU 1 estar sobrecarregada de trabalho enquanto a CPU 2 está ociosa.
+
+Sobre escalonamento de processos, essa arquitetura se comporta como se fosse um computador com um único processador.
+
+## Múltiplos processadores "Master-Slave"
+
+Nessa arquitetura, uma cópia do sistema operacional e de suas tabelas estão presente apenas na CPU 1. Todas as chamadas de sistema são direcionadas para a CPU 1 para serem processadas ali. É chamada de "master-slave", porque a CPU 1 é a mestre e todas as demais CPUs são escravas.
+
+Soluciona a maioria dos problemas da arquitetura anterior. Há uma única estrutura de dados que mantém o controle dos processos prontos. Assim, quando uma CPU fica ociosa, ela pede ao sistema operacional, em execução na CPU 1, um processo para executar e o sistema operacional aloca um processo para ela. Desse modo, não acontece uma CPU estar ociosa enquanto outra está sobrecarregada de trabalho.
+
+O problema desta arquitetura é que, com muitas CPUs, a CPU mestre se torna um gargalo, pois precisa lidar com todas as chamadas de sistema de todas as demais CPUs.
+
+Se tratando de escalonamento de processos, essa arquitetura também se comporta como se fosse um computador com um único processador, já que há apenas uma instância do sistema operacional em execução.
+
+## Múltiplos processadores simétricos
+
+A terceira arquitetura, multiprocessamento simétrico (SMP - SymMetric multi-Processing), elimina a assimetria da arquitetura "master-slave". Há uma cópia do sistema operacional na memória, mas qualquer CPU pode executá-la. Quando uma chamada de sistema é feita, a CPU na qual ela foi feita, processa essa chamada de sistema.
+
+Essa arquitetura equilibra processos e memória dinamicamente, tendo em vista que há apenas um conjunto de tabelas do sistema operacional. Também elimina o gargalo da CPU mestre, já que não há mais uma.
+
+Porém, se duas ou mais CPUs estão executando o mesmo código do sistema operacional, ao mesmo tempo, pode ocorrer um erro.
+
+A maneira mais simples de resolver esses problemas é associar uma variável de travamento ao sistema operacional. Dessa forma, qualquer CPU pode executar o sistema operacional, mas apenas uma de cada vez. Essa solução é chamada de grande trava de núcleo (big kernel lock).
+
+O algoritmo de escalonamento mais simples para sistemas com múltiplos processadores simétricos consiste em ter uma única estrutura de dados para os processos prontos em todo o sistema, eventualmente, uma única lista, mas, provavelmente, um conjunto de listas para processos com diferentes prioridades.
+
+Essa solução também proporciona um balanceamento de carga automático, pois não acontece de uma CPU estar ociosa enquanto as demais estão sobrecarregadas.
+
+Uma melhoria de perfomance que pode ser introduzida ao escalonamento em sistemas com múltiplos processadores é implementar um processo organizado com múltiplos fluxos de excecução (múltiplos threads) que trabalham juntos (threads relacionados).
+
+Se há muita comunicação entre os threads de um determinado processo, então, é interessante que eles sejam executados ao mesmo tempo. O escalonamento de múltiplos threads relacionados ao mesmo tempo em múltiplas CPU's é chamado de compartilhamento de espaço.
+
+Considerando um grupo de threads relacionados que foi criado ao mesmo tempo. Nesse instante, o escalonador de processos verifica se há tantas CPUs livre quanto há threads. Se existirem, cada thread recebe sua própria CPU dedicada e todos os threads são iniciados. Se não exisitrem, nenhum dos threads pode ser iniciado até que haja um número suficiente de CPUs disponíveis. Quando aparecer o próximo grupo de threads, o mesmo algorítmo é aplicado.
+
+## Escalonamento de processos em sistemas de tempo real
+
+O sistema de tempo real é aquele no qual tem uma função essencial. Em geral, um ou mais dispositivos externos ao computador geram estímulos e o computador deve reagir apropriadamente a eles dentro de certo intervalo de tempo.
+
+Por exemplo, o processador dentro de um tocador de CDs obtém os bits que chegam da cabeça de leitura e precisa convertê-los em música em um intervalo crítico de tempo. Se o processamento que ele fizer for muito demorado, a música soará diferente.
+
+São classificados como rígido (crítico), ou seja, há prazos absolutos que devem ser cumpridos; e flexível (não crítico), nos quais o descumprimento ocasional de um prazo é tolerável.
+
+Um sistema de tempo real rídigo garante que tarefas críticas sejam completadas em tempo, ou seja, há um prazo máximo (deadline) para que determinados processamentos sejam realizados. Essas restrições de tempo impõem restrições de projeto. Memória secundária de qualquer espécie é usualmente inexistente, sendo os dados armazenados em memória RAM ou ROM. 
+
+Os eventos para os quais um sistema de tempo real deve responder podem ser classificados como periódicos (intervalos regulares) ou aperiódicos (ocorrem de modo imprevisível).
+
+Por exemplo, um processo A inclui cinco eventos periódicos (A1, A2, ..., A5), com tempo de processamento de 10ms cada um e periodicidade de 20 ms (a cada 20 ms ocorre um novo evento). Assim, o deadline, para processar um determinado evento é o instante de tempo da chegada do próximo evento.
+
+É muito comum um sistema de tempo real ter que responder múltiplox fluxos de eventos periódicos. Pensando que, além do processo A, agora há também um processo B que possui dois eventos periódicos (B1 e B2), com tempo de processamento de 25 ms cada um e periodicidade de 50 ms.
+
+Se o algoritmo de escalonamento considerar o processo A como prioritário, eventos do processo B serão perdidos. Mesma coisa para a situação inversa. Então, o algoritmo deve trabalhar com o conceito de deadline para cada evento de cada processo, o que faz com que não haja uma prioridade fixa de execução dos processos, nem uma divisão de tempo do processador igualitária (timeslice) entre os processos.
+
+<img src="https://i.imgur.com/mmiaVNp.png" alt="Escalonamento em tempo real">
